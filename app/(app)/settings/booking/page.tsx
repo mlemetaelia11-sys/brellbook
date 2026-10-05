@@ -1,0 +1,2 @@
+import {requireUser,requireBusiness} from '@/lib/auth'; import {Card} from '@/components/ui'; import {BookingSettingsForm} from '@/components/booking-settings-form';
+export default async function BookingSettings(){const b=await requireBusiness((await requireUser()).id);return <div className="p-5 md:p-8"><h1 className="text-3xl font-black">Booking Settings</h1><p className="mt-2 text-slate-500">Control availability, cancellations, deposits, reviews and your public booking experience.</p><Card className="mt-6 max-w-3xl p-6"><BookingSettingsForm initial={b}/></Card></div>}

@@ -1,0 +1,2 @@
+import { requireUser, requireBusiness } from "@/lib/auth"; import { redirect } from "next/navigation"; import { AppShell } from "@/components/app-shell";
+export default async function Layout({children}:{children:React.ReactNode}){const user=await requireUser().catch(()=>null);if(!user)redirect('/login');const business=await requireBusiness(user.id).catch(()=>null);if(!business)redirect('/onboarding/business');return <AppShell user={user} business={business}>{children}</AppShell>}

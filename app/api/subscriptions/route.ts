@@ -1,0 +1,1 @@
+import { NextResponse } from 'next/server'; import { requireUser,requireBusiness } from '@/lib/auth'; export async function GET(){try{const b=await requireBusiness((await requireUser()).id);return NextResponse.json(b.subscription)}catch(e:any){return NextResponse.json({error:e.message},{status:401})}}

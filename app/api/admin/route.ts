@@ -1,0 +1,1 @@
+import { NextResponse } from 'next/server'; import { requireUser,requireAdmin } from '@/lib/auth'; export async function GET(){try{const u=await requireUser();await requireAdmin(u.id);return NextResponse.json({ok:true,admin:u.email})}catch(e:any){return NextResponse.json({error:e.message},{status:403})}}

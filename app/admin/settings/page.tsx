@@ -1,0 +1,1 @@
+import { Card } from '@/components/ui'; export default function Settings(){return <div><h1 className="text-3xl font-black">Platform Settings</h1><Card className="mt-6 p-6 text-slate-500">Platform configuration is environment-backed. Keep secrets out of the database and configure integrations through Vercel environment variables.</Card></div>}
