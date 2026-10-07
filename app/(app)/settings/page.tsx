@@ -1,1 +1,51 @@
-import Link from 'next/link'; import { Card } from '@/components/ui'; export default function Settings(){const items=[['Business Information','Business details, phone, location and social links','/settings/business'],['Working Hours','Opening hours, breaks and holidays','/settings/working-hours'],['Booking Settings','Notice period, buffers and cancellations','/settings/booking'],['Account & Security','Password, sessions and account settings','/settings/security'],['Policy & Strikes','Good standing, restrictions and appeals','/settings/policy']];return <div className="p-5 md:p-8"><h1 className="text-3xl font-black">Settings</h1><div className="mt-7 grid gap-3">{items.map(([a,b,c])=><Link key={c} href={c} className="card p-5 hover:border-purple-200"><div className="font-bold">{a}</div><div className="mt-1 text-sm text-slate-500">{b}</div></Link>)}</div></div>}
+import { requireBusiness, requireUser } from '@/lib/auth';
+import { Card } from '@/components/ui';
+
+export default async function BusinessSettings() {
+  const user = await requireUser();
+  const business = await requireBusiness(user.id);
+
+  const fields = [
+    ['Business name', business.name],
+    ['Category', business.category || ''],
+    ['Phone', business.phone],
+    ['WhatsApp', business.whatsappNumber || ''],
+    ['City', business.city || ''],
+    ['Address', business.address || ''],
+  ] as const;
+
+  return (
+    <div className="p-5 md:p-8">
+      <h1 className="text-3xl font-black">
+        Business Information
+      </h1>
+
+      <Card className="mt-6 max-w-3xl p-6">
+        <div className="grid gap-4 md:grid-cols-2">
+          {fields.map(([label, value]) => (
+            <div key={label}>
+              <label className="mb-2 block text-sm font-semibold">
+                {label}
+              </label>
+
+              <input
+                className="input"
+                defaultValue={value}
+                name={label
+                  .toLowerCase()
+                  .replace(/\s+/g, '_')}
+              />
+            </div>
+          ))}
+        </div>
+
+        <button
+          type="button"
+          className="btn btn-primary mt-6"
+        >
+          Save changes
+        </button>
+      </Card>
+    </div>
+  );
+}

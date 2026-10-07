@@ -48,6 +48,20 @@ model Business {
   depositPercent        Int                  @default(100)
   timezone              String               @default("Africa/Dar_es_Salaam")
   currency              String               @default("TZS")
+  minimumNoticeMinutes  Int                  @default(0)
+  bufferMinutes         Int                  @default(0)
+  allowCustomerCancellation Boolean          @default(true)
+  cancellationNoticeMinutes Int              @default(60)
+  allowCustomerRescheduling Boolean          @default(true)
+  rescheduleNoticeMinutes Int                @default(60)
+  maxAdvanceDays        Int                  @default(90)
+  depositEnabled        Boolean              @default(false)
+  reviewEnabled         Boolean              @default(true)
+  showBranding          Boolean              @default(true)
+  referralCode          String?              @unique
+  instagram             String?
+  facebook              String?
+  website               String?
   active                Boolean              @default(true)
   createdAt             DateTime             @default(now())
   updatedAt             DateTime             @updatedAt
@@ -66,6 +80,8 @@ model Business {
   notifications         Notification[]
   auditLogs             AuditLog[]
   supportTickets        SupportTicket[]
+  marketingEvents       MarketingEvent[]
+  referrals             Referral[]
 
   @@index([active])
   @@index([ownerId])
@@ -128,6 +144,7 @@ model Staff {
   id           String             @id @default(cuid())
   businessId   String
   name         String
+  role         String             @default("STAFF")
   phone        String?
   email        String?
   photoUrl     String?
@@ -462,3 +479,32 @@ enum SupportCategory {
   TECHNICAL
   OTHER
 }
+
+model MarketingEvent {
+  id         String   @id @default(cuid())
+  businessId String
+  type       String
+  serviceId  String?
+  sessionId  String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId, type, createdAt])
+  @@index([businessId, createdAt])
+  @@index([serviceId])
+}
+model Referral {
+  id         String   @id @default(cuid())
+  businessId String
+  code       String
+  status     String   @default("PENDING")
+  createdAt  DateTime @default(now())
+
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId, createdAt])
+  @@index([businessId, status])
+}
+

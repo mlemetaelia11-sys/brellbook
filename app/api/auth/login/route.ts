@@ -1,2 +1,41 @@
-import { NextResponse } from 'next/server'; import { db } from '@/lib/prisma'; import { verifyPassword, createSession } from '@/lib/auth'; import { loginSchema } from '@/lib/validation';
-export async function POST(req:Request){try{const d=loginSchema.parse(await req.json());const u=await db.user.findUnique({where:{email:d.email.toLowerCase()}});if(!u?.passwordHash||!(await verifyPassword(d.password,u.passwordHash)))return NextResponse.json({error:'Invalid email or password.'},{status:401});await createSession(u.id);return NextResponse.json({ok:true})}catch(e:any){return NextResponse.json({error:e.message||'Invalid request'},{status:400})}}
+import { NextResponse } from 'next/server';
+import { signIn } from '@/lib/auth';
+import { loginSchema } from '@/lib/validation';
+
+export async function POST(req: Request) {
+  try {
+    const data = loginSchema.parse(await req.json());
+
+    const result = await signIn('credentials', {
+      email: data.email.toLowerCase(),
+      password: data.password,
+      redirect: false,
+    });
+
+    if (!result || result.error) {
+      return NextResponse.json(
+        {
+          error: 'Invalid email or password.',
+        },
+        {
+          status: 401,
+        },
+      );
+    }
+
+    return NextResponse.json({
+      ok: true,
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+
+    return NextResponse.json(
+      {
+        error: 'Invalid email or password.',
+      },
+      {
+        status: 401,
+      },
+    );
+  }
+}
