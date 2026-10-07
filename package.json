@@ -1,0 +1,44 @@
+{
+  "name": "brellbook",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio",
+    "verify": "npm run lint && npm run typecheck && npm run build",
+    "postinstall": "prisma generate",
+    "db:safe-sync": "prisma generate && node scripts/safe-db-sync.mjs"
+  },
+  "dependencies": {
+    "@prisma/client": "6.19.3",
+    "next": "15.5.27",
+    "next-auth": "5.0.0-beta.29",
+    "react": "19.1.1",
+    "react-dom": "19.1.1",
+    "zod": "4.1.8",
+    "bcryptjs": "3.0.2",
+    "@aws-sdk/client-s3": "3.911.0",
+    "@aws-sdk/s3-request-presigner": "3.911.0"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "3.3.1",
+    "@types/node": "24.5.2",
+    "@types/react": "19.1.13",
+    "@types/react-dom": "19.1.9",
+    "eslint": "9.35.0",
+    "eslint-config-next": "15.5.27",
+    "prisma": "6.19.3",
+    "typescript": "5.9.2"
+  },
+  "engines": {
+    "node": ">=20.9.0",
+    "npm": ">=10.0.0"
+  }
+}

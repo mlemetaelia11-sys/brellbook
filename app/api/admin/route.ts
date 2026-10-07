@@ -1,0 +1,3 @@
+import {NextResponse} from 'next/server';import {auth} from '@/lib/auth';import {db} from '@/lib/prisma';
+async function admin(){const s=await auth();if(!s?.user?.id)return null;return db.user.findUnique({where:{id:s.user.id}})}
+export async function GET(){const u=await admin();if(!u?.isPlatformAdmin)return NextResponse.json({error:'Forbidden'},{status:403});const [businesses,users,subs,payments,bookings,tickets]=await Promise.all([db.business.count(),db.user.count(),db.subscription.count(),db.payment.count(),db.booking.count(),db.supportTicket.count()]);return NextResponse.json({metrics:{businesses,users,subscriptions:subs,payments,bookings,tickets}})}

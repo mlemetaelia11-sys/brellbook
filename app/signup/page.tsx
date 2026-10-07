@@ -1,0 +1,2 @@
+import Link from "next/link";import {Logo} from "@/components/Logo";import SignupForm from "./SignupForm";
+export default function Signup(){return <main className="auth"><div className="auth-card card"><Logo/><h1>Create your account</h1><p className="muted">Start managing your bookings with BrellBook.</p><SignupForm/><p style={{fontSize:13}}>Already have an account? <Link href="/login" style={{color:"#6C2BFF",fontWeight:700}}>Log in</Link></p></div></main>}

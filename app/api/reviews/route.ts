@@ -1,0 +1,12 @@
+import {NextResponse} from 'next/server';import {z} from 'zod';import {db} from '@/lib/prisma';import {auth} from '@/lib/auth';
+const schema=z.object({bookingId:z.string(),rating:z.number().int().min(1).max(5),review:z.string().max(2000).optional()});
+export async function POST(req:Request){const p=schema.safeParse(await req.json());if(!p.success)return NextResponse.json({error:'Invalid review.'},{status:400});const b=await db.booking.findUnique({where:{id:p.data.bookingId},include:{customer:true}});if(!b||b.status!=='COMPLETED')return NextResponse.json({error:'Only completed bookings can be reviewed.'},{status:400});const r=await db.review.upsert({where:{bookingId:b.id},update:{rating:p.data.rating,comment:p.data.review||null,approved:false},create:{
+  id:crypto.randomUUID(),
+  businessId:b.businessId,
+  customerId:b.customerId,
+  bookingId:b.id,
+  rating:p.data.rating,
+  comment:p.data.review||null
+}});return NextResponse.json({review:r},{status:201});}
+export async function GET(req:Request){const businessId=new URL(req.url).searchParams.get('businessId');if(!businessId)return NextResponse.json({error:'businessId required'},{status:400});const s=await auth();if(!s?.user?.id)return NextResponse.json({error:'Unauthorized'},{status:401});const m=await db.businessMembership.findUnique({where:{businessId_userId:{userId:s.user.id,businessId}}});if(!m)return NextResponse.json({error:'Forbidden'},{status:403});return NextResponse.json({reviews:await db.review.findMany({where:{businessId},include:{customer:true,booking:true},orderBy:{createdAt:'desc'}})});}
+export async function PATCH(req:Request){const s=await auth();if(!s?.user?.id)return NextResponse.json({error:'Unauthorized'},{status:401});const p=z.object({businessId:z.string(),id:z.string(),approved:z.boolean(),response:z.string().max(2000).optional()}).safeParse(await req.json());if(!p.success)return NextResponse.json({error:'Invalid request'},{status:400});const m=await db.businessMembership.findUnique({where:{businessId_userId:{userId:s.user.id,businessId:p.data.businessId}}});if(!m||m.role==='STAFF')return NextResponse.json({error:'Forbidden'},{status:403});const existing=await db.review.findFirst({where:{id:p.data.id,businessId:p.data.businessId}});if(!existing)return NextResponse.json({error:'Review not found.'},{status:404});return NextResponse.json({review:await db.review.update({where:{id:existing.id},data:{approved:p.data.approved,response:p.data.response||undefined}})});}

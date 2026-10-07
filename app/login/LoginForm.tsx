@@ -1,0 +1,5 @@
+"use client";
+import { signIn } from "next-auth/react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+export default function LoginForm(){const r=useRouter();const [email,setEmail]=useState("");const [password,setPassword]=useState("");const [error,setError]=useState("");const [busy,setBusy]=useState(false);return <form onSubmit={async e=>{e.preventDefault();setBusy(true);setError("");const x=await signIn("credentials",{email,password,redirect:false});if(x?.error){setError("Email or password is incorrect.");setBusy(false)}else r.push("/dashboard")}}><div className="field"><label>Email</label><input value={email} onChange={e=>setEmail(e.target.value)} type="email" required autoComplete="email"/></div><div className="field"><label>Password</label><input value={password} onChange={e=>setPassword(e.target.value)} type="password" minLength={8} required autoComplete="current-password"/></div>{error&&<p style={{color:"#FF5A4E",fontSize:13}}>{error}</p>}<button className="btn btn-primary" style={{width:"100%"}} disabled={busy}>{busy?"Signing in…":"Log in"}</button></form>}
