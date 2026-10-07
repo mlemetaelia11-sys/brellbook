@@ -1,0 +1,1 @@
+import { Card } from '@/components/ui'; export default function StaffSchedule(){return <div className="p-5 md:p-8"><h1 className="text-3xl font-black">Staff schedule</h1><Card className="mt-6 p-8 text-center text-slate-500">Assign staff working hours and services from the Pro staff workspace.</Card></div>}

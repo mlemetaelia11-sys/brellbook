@@ -1,0 +1,2 @@
+"use client"; import {useEffect} from 'react';
+export function BusinessPageTracker({businessSlug,serviceId,type='PAGE_VIEW'}:{businessSlug:string;serviceId?:string;type?:string}){useEffect(()=>{const key=`brellbook-session-${businessSlug}`,sessionId=sessionStorage.getItem(key)||crypto.randomUUID();sessionStorage.setItem(key,sessionId);fetch('/api/marketing-events',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({businessSlug,type,serviceId,sessionId})}).catch(()=>{});},[businessSlug,serviceId,type]);return null}
