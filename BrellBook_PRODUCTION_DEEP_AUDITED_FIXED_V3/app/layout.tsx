@@ -1,0 +1,9 @@
+import "./globals.css";
+import type { Metadata } from "next";
+export const metadata: Metadata = {
+  title: "BrellBook — Book it. Don't miss it.",
+  description: "Simple booking management for growing businesses."
+};
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return <html lang="en"><body>{children}</body></html>;
+}

@@ -1,0 +1,9 @@
+import { NextResponse } from "next/server";
+import { z } from "zod";
+import { auth } from "@/lib/auth";
+import { db } from "@/lib/prisma";
+const time=z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/); const item = z.object({ dayOfWeek: z.number().int().min(0).max(6), open: z.boolean(), openTime: time, closeTime: time }).refine(x=>!x.open||x.openTime<x.closeTime,{message:'Close time must be after open time.'});
+const schema = z.object({ businessId: z.string(), hours: z.array(item).length(7).superRefine((hours,ctx)=>{if(new Set(hours.map(h=>h.dayOfWeek)).size!==7)ctx.addIssue({code:z.ZodIssueCode.custom,message:'Each day of week must appear exactly once.'});}) });
+async function access(businessId: string) { const session = await auth(); if (!session?.user?.id) return null; return db.businessMembership.findUnique({ where: { userId_businessId: { userId: session.user.id, businessId } } }); }
+export async function GET(req: Request) { const businessId = new URL(req.url).searchParams.get("businessId"); if (!businessId || !(await access(businessId))) return NextResponse.json({ error: "Forbidden" }, { status: 403 }); return NextResponse.json({ hours: await db.workingHour.findMany({ where: { businessId }, orderBy: { dayOfWeek: "asc" } }) }); }
+export async function PUT(req: Request) { const parsed = schema.safeParse(await req.json()); if (!parsed.success) return NextResponse.json({ error: "Invalid working hours." }, { status: 400 }); const membership=await access(parsed.data.businessId); if (!membership || membership.role==='STAFF') return NextResponse.json({ error: "Forbidden" }, { status: 403 }); await db.$transaction(parsed.data.hours.map(h => db.workingHour.upsert({ where: { businessId_dayOfWeek: { businessId: parsed.data.businessId, dayOfWeek: h.dayOfWeek } }, update: { open: h.open, openTime: h.openTime, closeTime: h.closeTime }, create: { businessId: parsed.data.businessId, ...h } }))); return NextResponse.json({ ok: true }); }
